@@ -1,0 +1,65 @@
+{
+  "namespace": "se.arlanda.ops.events",
+  "type": "record",
+  "name": "FlightStatusUpdate",
+  "doc": "Standardized CloudEvents envelope containing flight status domain data.",
+  "fields": [
+    {
+      "name": "id", 
+      "type": "string", 
+      "doc": "Globally unique event identifier (UUID)"
+    },
+    {
+      "name": "source", 
+      "type": "string", 
+      "doc": "URI of the microservice generating the event"
+    },
+    {
+      "name": "specversion", 
+      "type": "string", 
+      "default": "1.0", 
+      "doc": "CloudEvents standard version"
+    },
+    {
+      "name": "type", 
+      "type": "string", 
+      "doc": "Dot-notation event type"
+    },
+    {
+      "name": "time", 
+      "type": {"type": "long", "logicalType": "timestamp-millis"}, 
+      "doc": "Exact millisecond the physical event occurred"
+    },
+    {
+      "name": "correlation_id", 
+      "type": "string", 
+      "doc": "Tracing ID passed down through the microservice chain"
+    },
+    {
+      "name": "data",
+      "doc": "The actual domain-specific payload",
+      "type": {
+        "type": "record",
+        "name": "FlightStatusPayload",
+        "fields": [
+          {
+            "name": "flight_number", 
+            "type": "string", 
+            "doc": "The official IATA/ICAO flight number"
+          },
+          {
+            "name": "status", 
+            "type": "string", 
+            "doc": "Current status: SCHEDULED, DELAYED, LANDED, CANCELLED"
+          },
+          {
+            "name": "estimated_arrival", 
+            "type": ["null", {"type": "long", "logicalType": "timestamp-millis"}], 
+            "default": null,
+            "doc": "Updated arrival time if delayed. Nullable."
+          }
+        ]
+      }
+    }
+  ]
+}

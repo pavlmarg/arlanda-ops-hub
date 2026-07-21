@@ -1,0 +1,74 @@
+{
+  "namespace": "se.arlanda.ops.events",
+  "type": "record",
+  "name": "WeatherAlert",
+  "doc": "Standardized CloudEvents envelope containing meteorological domain data for ARN.",
+  "fields": [
+    {
+      "name": "id", 
+      "type": "string", 
+      "doc": "Globally unique event identifier (UUID)"
+    },
+    {
+      "name": "source", 
+      "type": "string", 
+      "doc": "URI of the microservice generating the event, e.g., urn:arlanda:weather-ingestion"
+    },
+    {
+      "name": "specversion", 
+      "type": "string", 
+      "default": "1.0", 
+      "doc": "CloudEvents standard version"
+    },
+    {
+      "name": "type", 
+      "type": "string", 
+      "doc": "Dot-notation event type, e.g., arn.weather.alert.issued"
+    },
+    {
+      "name": "time", 
+      "type": {"type": "long", "logicalType": "timestamp-millis"}, 
+      "doc": "Exact millisecond the physical event occurred"
+    },
+    {
+      "name": "correlation_id", 
+      "type": "string", 
+      "doc": "Tracing ID passed down through the microservice chain"
+    },
+    {
+      "name": "data",
+      "doc": "The actual meteorological payload used by the Gate Optimization Service",
+      "type": {
+        "type": "record",
+        "name": "WeatherPayload",
+        "fields": [
+          {
+            "name": "condition", 
+            "type": "string", 
+            "doc": "Current weather state: CLEAR, RAIN, SNOW, FOG, ICE"
+          },
+          {
+            "name": "severity", 
+            "type": "string", 
+            "doc": "Impact level: INFO, WARNING, CRITICAL"
+          },
+          {
+            "name": "temperature_c", 
+            "type": "float", 
+            "doc": "Current temperature in Celsius"
+          },
+          {
+            "name": "wind_speed_knots", 
+            "type": "int", 
+            "doc": "Sustained wind speed in knots"
+          },
+          {
+            "name": "visibility_meters", 
+            "type": "int", 
+            "doc": "Runway visual range in meters"
+          }
+        ]
+      }
+    }
+  ]
+}
