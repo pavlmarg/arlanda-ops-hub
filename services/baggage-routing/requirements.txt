@@ -1,0 +1,9 @@
+# Graph routing mathematics
+networkx==3.1
+
+# Kafka and Schema Registry integration
+confluent-kafka==2.3.0
+fastavro==1.8.4
+
+# Standard HTTP requests
+requests==2.31.0

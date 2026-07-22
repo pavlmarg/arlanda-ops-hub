@@ -52,3 +52,24 @@ services:
       SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: PLAINTEXT://kafka:29092
     networks:
       - arlanda-net
+
+  # -----------------------------------------
+  # DOMAIN MICROSERVICES
+  # -----------------------------------------
+  
+  # Baggage Routing Service (Python)
+  # Calculates optimal routes for luggage via the BHS and dispatches commands.
+  baggage-routing-service:
+    build: 
+      context: ./services/baggage-routing-service
+      dockerfile: Dockerfile
+    container_name: baggage-routing
+    environment:
+      - KAFKA_BROKER=kafka:29092
+      - SCHEMA_REGISTRY_URL=http://schema-registry:8081
+    depends_on:
+      - kafka
+      - schema-registry
+    networks:
+      - arlanda-net
+    restart: unless-stopped
