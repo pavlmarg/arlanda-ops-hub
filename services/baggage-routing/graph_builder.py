@@ -236,14 +236,20 @@ class ArlandaGraphBuilder:
         """Converts aviation Degrees-Minutes-Seconds to Decimal Degrees."""
         match = re.match(r"(\d{2,3})(\d{2})(\d{2}\.\d{2})([NE])", dms_str)
         if not match:
-            logger.error(f"Failed to parse coordinate string: {dms_str}")
-            return 0.0
-            
+            raise ValueError(f"Failed to parse coordinate string: {dms_str}")
+
         degrees, minutes, seconds, direction = match.groups()
-        
+
         # Core mathematical conversion formula
         decimal = float(degrees) + (float(minutes) / 60) + (float(seconds) / 3600)
-        return round(decimal, 7)
+        decimal = round(decimal, 7)
+        
+        if direction == "N" and not (58.0 <= decimal <= 61.0):
+            raise ValueError(f"Latitude {decimal} out of plausible range for {dms_str}")
+        if direction == "E" and not (17.0 <= decimal <= 19.0):
+            raise ValueError(f"Longitude {decimal} out of plausible range for {dms_str}")
+
+        return decimal
 
     def fetch_real_gates_aip(self):
         logger.info("Loading official AIP Sweden INS stand coordinates into the graph...")
@@ -306,31 +312,39 @@ class ArlandaGraphBuilder:
 
         # Check-in to BHS Hubs (Conveyor)
         check_ins = [n for n, d in nodes.items() if d.get("type") == "check_in"]
+        bhs_hubs_for_checkins = [n for n, d in nodes.items() if d.get("type") == "bhs_hub"]
+
         for ci in check_ins:
-            hub = ci.replace("CheckIn", "BHS_Hub")
-            if hub in nodes:
-                dist = 50.0
-                base_time = dist / CONVEYOR_SPEED
-                self.graph.add_edge(ci, hub, distance=dist, base_time=base_time, effective_time=base_time, edge_type="conveyor")
-                edge_count += 1
+            ci_data = nodes[ci]
+            nearest_hub = min(
+                bhs_hubs_for_checkins,
+                key=lambda hub: self.calculate_haversine_distance(
+                    ci_data["lat"], ci_data["lon"], nodes[hub]["lat"], nodes[hub]["lon"]
+                )
+            )
+            dist = 50.0
+            base_time = dist / CONVEYOR_SPEED
+            self.graph.add_edge(ci, nearest_hub, distance=dist, base_time=base_time, effective_time=base_time, edge_type="conveyor")
+            edge_count += 1
 
         # BHS Hubs to Carousels (Conveyor)
         carousels = [n for n, d in nodes.items() if d.get("type") == "carousel"]
+        bhs_hubs_for_carousels = [n for n, d in nodes.items() if d.get("type") == "bhs_hub"]
+
         for car in carousels:
-            hub = None
-            if "T2" in car: hub = "BHS_Hub_T2"
-            elif "T3" in car: hub = "BHS_Hub_T3"
-            elif "T4" in car: hub = "BHS_Hub_T4"
-            elif "T5" in car and int(car.split("_")[-1]) <= 3: hub = "BHS_Hub_T5_South"
-            elif "T5" in car and int(car.split("_")[-1]) > 3:  hub = "BHS_Hub_T5_North"
+            car_data = nodes[car]
+            nearest_hub = min(
+                bhs_hubs_for_carousels,
+                key=lambda hub: self.calculate_haversine_distance(
+                    car_data["lat"], car_data["lon"], nodes[hub]["lat"], nodes[hub]["lon"]
+                )
+            )
+            dist = 30.0
+            base_time = dist / CONVEYOR_SPEED
+            self.graph.add_edge(nearest_hub, car, distance=dist, base_time=base_time, effective_time=base_time, edge_type="conveyor")
+            edge_count += 1
 
-            if hub and hub in nodes:
-                dist = 30.0
-                base_time = dist / CONVEYOR_SPEED
-                self.graph.add_edge(hub, car, distance=dist, base_time=base_time, effective_time=base_time, edge_type="conveyor")
-                edge_count += 1
-
-        # BHS Hubs to Gates (Tug Routes) -> NOW CONNECTS TO TWO CLOSEST HUBS
+        # BHS Hubs to Gates (Tug Routes) -> CONNECTS TO TWO CLOSEST HUBS
         gates = [n for n, d in nodes.items() if d.get("type") == "gate"]
         bhs_hubs = [n for n, d in nodes.items() if d.get("type") == "bhs_hub"]
 

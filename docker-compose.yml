@@ -61,7 +61,7 @@ services:
   # Calculates optimal routes for luggage via the BHS and dispatches commands.
   baggage-routing-service:
     build: 
-      context: ./services/baggage-routing-service
+      context: ./services/baggage-routing
       dockerfile: Dockerfile
     container_name: baggage-routing
     environment:

@@ -1,0 +1,77 @@
+{
+  "namespace": "se.arlanda.ops.events",
+  "type": "record",
+  "name": "BaggageRoutingCommand",
+  "doc": "Standardized CloudEvents envelope containing a dispatched routing command for BHS hardware (PLCs).",
+  "fields": [
+    {
+      "name": "id",
+      "type": "string",
+      "doc": "Globally unique event identifier (UUID)"
+    },
+    {
+      "name": "source",
+      "type": "string",
+      "doc": "URI of the microservice generating the event, e.g., urn:arlanda:baggage-routing"
+    },
+    {
+      "name": "specversion",
+      "type": "string",
+      "default": "1.0",
+      "doc": "CloudEvents standard version"
+    },
+    {
+      "name": "type",
+      "type": "string",
+      "doc": "Dot-notation event type, e.g., arn.baggage.routing_command"
+    },
+    {
+      "name": "time",
+      "type": {"type": "long", "logicalType": "timestamp-millis"},
+      "doc": "Exact millisecond the physical event occurred"
+    },
+    {
+      "name": "correlation_id",
+      "type": "string",
+      "doc": "Tracing ID passed down through the microservice chain"
+    },
+    {
+      "name": "data",
+      "doc": "The routing command payload consumed by BHS hardware controllers",
+      "type": {
+        "type": "record",
+        "name": "BaggageRoutingCommandPayload",
+        "fields": [
+          {
+            "name": "command_id",
+            "type": "string",
+            "doc": "Unique identifier for this dispatched command"
+          },
+          {
+            "name": "bag_tag_id",
+            "type": "string",
+            "doc": "Unique bag tag identifier this command applies to"
+          },
+          {
+            "name": "target_node",
+            "type": "string",
+            "doc": "Final destination graph node ID, e.g., Gate_12"
+          },
+          {
+            "name": "path",
+            "type": {
+              "type": "array",
+              "items": "string"
+            },
+            "doc": "Ordered list of graph node IDs the bag will traverse"
+          },
+          {
+            "name": "estimated_transit_time_seconds",
+            "type": "double",
+            "doc": "Estimated total transit time for the calculated path, in seconds"
+          }
+        ]
+      }
+    }
+  ]
+}

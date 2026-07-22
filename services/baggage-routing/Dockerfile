@@ -1,4 +1,4 @@
-FROM python:3.13.5
+FROM python:3.10-slim
 
 # PYTHONDONTWRITEBYTECODE: Prevents Python from writing .pyc files to disk
 # PYTHONUNBUFFERED: Ensures Python output is logged straight to the terminal

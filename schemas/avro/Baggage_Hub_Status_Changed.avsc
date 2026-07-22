@@ -1,0 +1,70 @@
+{
+  "namespace": "se.arlanda.ops.events",
+  "type": "record",
+  "name": "BaggageHubStatusChanged",
+  "doc": "Standardized CloudEvents envelope containing a live condition update for a BHS graph edge (hub, gate, or transfer link), used to trigger dynamic rerouting.",
+  "fields": [
+    {
+      "name": "id",
+      "type": "string",
+      "doc": "Globally unique event identifier (UUID)"
+    },
+    {
+      "name": "source",
+      "type": "string",
+      "doc": "URI of the microservice generating the event, e.g., urn:arlanda:bhs-monitoring"
+    },
+    {
+      "name": "specversion",
+      "type": "string",
+      "default": "1.0",
+      "doc": "CloudEvents standard version"
+    },
+    {
+      "name": "type",
+      "type": "string",
+      "doc": "Dot-notation event type, e.g., arn.baggage.hub.status_changed"
+    },
+    {
+      "name": "time",
+      "type": {"type": "long", "logicalType": "timestamp-millis"},
+      "doc": "Exact millisecond the physical event occurred"
+    },
+    {
+      "name": "correlation_id",
+      "type": "string",
+      "doc": "Tracing ID passed down through the microservice chain"
+    },
+    {
+      "name": "data",
+      "doc": "The edge condition payload used by the Baggage Routing Service to update its live graph",
+      "type": {
+        "type": "record",
+        "name": "BaggageHubStatusChangedPayload",
+        "fields": [
+          {
+            "name": "node_a",
+            "type": "string",
+            "doc": "First graph node ID of the affected edge"
+          },
+          {
+            "name": "node_b",
+            "type": "string",
+            "doc": "Second graph node ID of the affected edge"
+          },
+          {
+            "name": "status",
+            "type": "string",
+            "doc": "Edge condition: operational, broken, or degraded"
+          },
+          {
+            "name": "congestion_multiplier",
+            "type": "double",
+            "default": 1.0,
+            "doc": "Multiplier applied to the edge's base travel time to reflect congestion; ignored when status is broken"
+          }
+        ]
+      }
+    }
+  ]
+}

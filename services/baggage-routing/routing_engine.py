@@ -49,8 +49,9 @@ class BaggageRoutingEngine:
             )
             
             # Calculate total time and distance for the chosen path
-            total_time_sec = nx.dijkstra_path_length(self.graph, source=source_node, target=target_node, weight='effective_time')
-            total_distance = nx.dijkstra_path_length(self.graph, source=source_node, target=target_node, weight='distance')
+            path_edges = list(zip(optimal_path, optimal_path[1:]))
+            total_time_sec = sum(self.graph[u][v]['effective_time'] for u, v in path_edges)
+            total_distance = sum(self.graph[u][v]['distance'] for u, v in path_edges)
             
             # If the time is infinity, it means all physical paths are broken
             if total_time_sec == float('inf'):
@@ -78,6 +79,7 @@ class BaggageRoutingEngine:
         except nx.NodeNotFound as e:
             logger.error(f"ROUTING ERROR: Invalid node - {str(e)}")
             return {"bag_id": bag_id, "status": "FAILED_INVALID_NODE"}
+        
 
 if __name__ == "__main__":
     engine = BaggageRoutingEngine()
@@ -91,6 +93,5 @@ if __name__ == "__main__":
     engine.builder.update_edge_condition("BHS_Hub_T5_South", "Gate_12", status="broken")
     
     # Recalculate for the exact same bag. The system should automatically find the backup 
-    # route (transferring to the T2 Hub or T5 North Hub and driving to Gate 12 from there).
     route2 = engine.calculate_optimal_route("BAG-100", "CheckIn_T5_South", "Gate_12")
     print(json.dumps(route2, indent=2))

@@ -1,0 +1,33 @@
+# OS & IDE files
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Python
+venv/
+env/
+.venv/
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+*.egg-info/
+
+# Docker
+Dockerfile
+.dockerignore
+docker-compose.yml
+
+# Git
+.git/
+.gitignore
+
+# Environment / secrets
+.env
+*.env
+
+# Logs
+*.log

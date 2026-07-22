@@ -28,3 +28,21 @@ if __name__ == "__main__":
         schema_path="schemas/avro/Weather_Alert.avsc",
         subject_name="arn.weather.alert.issued-value"
     )
+
+    # Register the Baggage Scanned schema (consumed by baggage-routing service)
+    register_avro_schema(
+        schema_path="schemas/avro/Baggage_Scanned.avsc",
+        subject_name="arn.baggage.scanned-value"
+    )
+
+    # Register the Baggage Routing Command schema (produced by baggage-routing service)
+    register_avro_schema(
+        schema_path="schemas/avro/Baggage_Routing_Command.avsc",
+        subject_name="arn.baggage.routing_command-value"
+    )
+
+    # Register the Baggage Hub Status Changed schema (drives self-healing rerouting)
+    register_avro_schema(
+        schema_path="schemas/avro/Baggage_Hub_Status_Changed.avsc",
+        subject_name="arn.baggage.hub.status_changed-value"
+    )

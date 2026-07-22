@@ -1,0 +1,64 @@
+{
+  "namespace": "se.arlanda.ops.events",
+  "type": "record",
+  "name": "BaggageScanned",
+  "doc": "Standardized CloudEvents envelope containing a baggage scan event from a BHS scanner.",
+  "fields": [
+    {
+      "name": "id",
+      "type": "string",
+      "doc": "Globally unique event identifier (UUID)"
+    },
+    {
+      "name": "source",
+      "type": "string",
+      "doc": "URI of the microservice generating the event, e.g., urn:arlanda:bhs-scanner"
+    },
+    {
+      "name": "specversion",
+      "type": "string",
+      "default": "1.0",
+      "doc": "CloudEvents standard version"
+    },
+    {
+      "name": "type",
+      "type": "string",
+      "doc": "Dot-notation event type, e.g., arn.baggage.scanned"
+    },
+    {
+      "name": "time",
+      "type": {"type": "long", "logicalType": "timestamp-millis"},
+      "doc": "Exact millisecond the physical event occurred"
+    },
+    {
+      "name": "correlation_id",
+      "type": "string",
+      "doc": "Tracing ID passed down through the microservice chain"
+    },
+    {
+      "name": "data",
+      "doc": "The actual scan payload used by the Baggage Routing Service",
+      "type": {
+        "type": "record",
+        "name": "BaggageScannedPayload",
+        "fields": [
+          {
+            "name": "bag_tag_id",
+            "type": "string",
+            "doc": "Unique bag tag identifier scanned at the BHS node"
+          },
+          {
+            "name": "scanner_location",
+            "type": "string",
+            "doc": "Graph node ID where the bag was scanned, e.g., CheckIn_T5_South"
+          },
+          {
+            "name": "destination_node",
+            "type": "string",
+            "doc": "Graph node ID the bag must be routed to, e.g., Gate_12"
+          }
+        ]
+      }
+    }
+  ]
+}
